@@ -1,7 +1,7 @@
 export const profile = {
   name: 'Keval Somnath Sukase',
   role: 'Java Backend Developer',
-  email: 'kevalsukase1999@gmail.com',
+  email: 'kevalsomnathsukase@gmail.com',
   phone: '+91 9370548799',
   experience: '3.5+ years',
   introduction:
