@@ -1,23 +1,67 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import emailjs from '@emailjs/browser'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import { profile } from '../data/portfolio.js'
 
 function Contact() {
   const [feedback, setFeedback] = useState('')
+  const [feedbackType, setFeedbackType] = useState('')
+  const [isSending, setIsSending] = useState(false)
+  const submissionInProgress = useRef(false)
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const name = formData.get('name')
-    const email = formData.get('email')
-    const projectType = formData.get('projectType')
-    const message = formData.get('message')
-    const subject = `Project inquiry: ${projectType}`
-    const body = `Hi Keval,\n\n${message}\n\nProject type: ${projectType}\nName: ${name}\nEmail: ${email}`
+    if (submissionInProgress.current) return
 
-    setFeedback('Your email app should open with your message ready. If it does not, email me directly at the address below.')
-    window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    submissionInProgress.current = true
+    setIsSending(true)
+    setFeedback('')
+    setFeedbackType('')
+
+    const form = event.currentTarget
+
+    try {
+      const serviceId = import.meta.env.EMAILJS_SERVICE_ID
+      const templateId = import.meta.env.EMAILJS_TEMPLATE_ID
+      const publicKey = import.meta.env.EMAILJS_PUBLIC_KEY
+
+      if (!serviceId || !templateId || !publicKey) {
+        setFeedback('Email delivery is not configured yet. Please email me directly at the address below.')
+        setFeedbackType('error')
+        return
+      }
+
+      const formData = new FormData(form)
+      const name = formData.get('name')
+      const email = formData.get('email')
+      const projectType = formData.get('projectType')
+      const message = formData.get('message')
+      const subject = `Project inquiry: ${projectType}`
+
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          from_name: name,
+          reply_to: email,
+          subject,
+          message,
+        },
+        { publicKey },
+      )
+
+      form.reset()
+      setFeedback('Thanks for reaching out. Your message has been sent successfully.')
+      setFeedbackType('success')
+    } catch (error) {
+      console.error('EmailJS contact form submission failed:', error)
+      setFeedback('Your message could not be sent. Please try again or email me directly at the address below.')
+      setFeedbackType('error')
+    } finally {
+      submissionInProgress.current = false
+      setIsSending(false)
+    }
   }
 
   return (
@@ -79,14 +123,17 @@ function Contact() {
               Project details <span aria-hidden="true">*</span>
               <textarea name="message" rows="5" placeholder="What are you looking to build or improve?" required />
             </label>
-            <button className="button button-primary form-submit" type="submit">
-              Prepare email <span aria-hidden="true">↗</span>
+            <button className="button button-primary form-submit" type="submit" disabled={isSending} aria-busy={isSending}>
+              {isSending ? 'Sending…' : 'Send message'} {!isSending && <span aria-hidden="true">↗</span>}
             </button>
             <p className="form-disclaimer">
-              This form opens your default email application with the details filled in. It
-              does not send anything to a server.
+              Your email address is included as the Reply-To address.
             </p>
-            {feedback && <p className="form-feedback" role="status">{feedback}</p>}
+            {feedback && (
+              <p className={`form-feedback${feedbackType === 'error' ? ' is-error' : ''}`} role={feedbackType === 'error' ? 'alert' : 'status'}>
+                {feedback}
+              </p>
+            )}
           </form>
         </section>
       </main>

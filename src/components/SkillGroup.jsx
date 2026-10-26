@@ -31,6 +31,7 @@ const skillIcons = {
   css: DiCss3,
   bootstrap: SiBootstrap,
   mysql: SiMysql,
+  database: LuDatabase,
   oracle: LuDatabase,
   postgresql: SiPostgresql,
   mongodb: SiMongodb,
