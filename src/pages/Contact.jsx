@@ -22,9 +22,9 @@ function Contact() {
     const form = event.currentTarget
 
     try {
-      const serviceId = import.meta.env.EMAILJS_SERVICE_ID
-      const templateId = import.meta.env.EMAILJS_TEMPLATE_ID
-      const publicKey = import.meta.env.EMAILJS_PUBLIC_KEY
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
 
       if (!serviceId || !templateId || !publicKey) {
         setFeedback('Email delivery is not configured yet. Please email me directly at the address below.')
