@@ -12,7 +12,7 @@ export const profile = {
 
 export const externalProfiles = {
   LinkedIn: null,
-  GitHub: null,
+  GitHub: "https://github.com/keval-sukase",
   Naukri: null,
 }
 
